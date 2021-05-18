@@ -2,21 +2,29 @@
 #include <string.h>
 
 void levelOne(int*, char**);
-void levelTwo(int*, char**);
+void levelTwo(int*, char*);
 
 struct Menu {
-    char **items;
+    char *title;
     int sel[2];
     int level;
-    struct Menu **submenu;
+    int length;
+    struct Item **items;
+};
+
+struct Item {
+    char *name;
+    void (*action)(int);
+    struct Menu *submenu;
 };
 
 int main(){
 
     struct Menu menu;
+    menu.title = "Main";
+    menu.level = 0;
     menu.sel[0] = menu.sel[0] = 0;
     int lvllen[2] = {6,6};
-    int level;
 
     int ch;
     char *items[6] = {
@@ -28,27 +36,43 @@ int main(){
         "Kubectl"
     };
 
+    int size = sizeof items / sizeof (items[0]);
+    menu.length = size;
+
     initscr();
+    
+    for(int i=0;i<size;i++) {
+        struct Item cur;
+        cur.name = items[i];
+        menu.items[i] = &cur;
+    }
+
+
     keypad(stdscr,TRUE);
     do {
         int pos = menu.sel[0];
-        printw("menu.sel[0]: %d, menu.sel[1]: %d ",menu.sel[0],menu.sel[1]);;
+        move(0,0);
+        printw("menu.sel[0]: %d, menu.sel[1]: %d ",menu.sel[0],menu.sel[1]);
         levelOne(menu.sel,items);
-        if(level>0) levelTwo(menu.sel,items);
+        if(menu.level>0){
+            int selection = menu.sel[0];
+            levelTwo(menu.sel, menu.items[selection]->name);
+        } 
         ch = getch();
         switch(ch) {
             case KEY_DOWN:
-                if (menu.sel[level] < lvllen[level]-1) menu.sel[level]++;
+                if (menu.sel[menu.level] < lvllen[menu.level]-1)
+                    menu.sel[menu.level]++;
                 break;
             case KEY_UP:
-                if (menu.sel[level] > 0) menu.sel[level]--;
+                if (menu.sel[menu.level] > 0) menu.sel[menu.level]--;
                 break;
             case KEY_LEFT:
-                if (level > 0) level--;
+                if (menu.level > 0) menu.level--;
                 break;
             case KEY_RIGHT:
-                if (level < 1) level++;
-                menu.sel[level]=pos;
+                if (menu.level < 1) menu.level++;
+                menu.sel[menu.level]=pos;
                 break;
             default:
                 break;
@@ -74,10 +98,10 @@ void levelOne(int *pos, char **items) {
     refresh();
 }
 
-void levelTwo(int *pos, char **items) {
+void levelTwo(int *pos, char *item) {
     move(LINES/2,COLS/2);
-    int len=strlen(items[pos[0]]);
-    printw("selection length: %d",len);
+    int len=strlen(item);
+    // printw("selection length: %d",len);
 
     move(pos[0]+1,5+len);
     for (int i=0; i<13-len; i++) {
