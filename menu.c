@@ -1,22 +1,23 @@
 #include <ncurses.h>
+#include <stdlib.h>
 #include <string.h>
 
 void levelOne(int*, char**);
 void levelTwo(int*, char*);
 
-struct Menu {
+typedef struct Item {
+    char *name;
+    void (*action)(int);
+    struct Menu *submenu;
+} Item;
+
+typedef struct Menu {
     char *title;
     int sel[2];
     int level;
     int length;
-    struct Item **items;
-};
-
-struct Item {
-    char *name;
-    void (*action)(int);
-    struct Menu *submenu;
-};
+    Item **items;
+} Menu;
 
 int main(){
 
@@ -38,24 +39,32 @@ int main(){
 
     int size = sizeof items / sizeof (items[0]);
     menu.length = size;
+    menu.items = malloc(sizeof(Item) * size); 
 
     initscr();
-    
-    for(int i=0;i<size;i++) {
-        struct Item cur;
-        cur.name = items[i];
-        menu.items[i] = &cur;
-    }
 
+    //build menu
+    for(int i=0;i<size;i++) {
+        Item *cur = malloc(sizeof(Item));
+        cur->name = items[i];
+        menu.items[i] = cur;
+    }
 
     keypad(stdscr,TRUE);
     do {
+        // //print menu items
+        // for(int i=0;i<menu.length;i++) {
+        //     move((LINES/2)+i,0);
+        //     printw(menu.items[i]->name);
+        // }
+        // refresh();
+        
         int pos = menu.sel[0];
         move(0,0);
-        printw("menu.sel[0]: %d, menu.sel[1]: %d ",menu.sel[0],menu.sel[1]);
+        printw("menu.sel[0]: %d, menu.sel[1]: %d , pos: %d",menu.sel[0],menu.sel[1],pos);
         levelOne(menu.sel,items);
         if(menu.level>0){
-            int selection = menu.sel[0];
+            int selection = pos;
             levelTwo(menu.sel, menu.items[selection]->name);
         } 
         ch = getch();
@@ -101,7 +110,10 @@ void levelOne(int *pos, char **items) {
 void levelTwo(int *pos, char *item) {
     move(LINES/2,COLS/2);
     int len=strlen(item);
-    // printw("selection length: %d",len);
+    printw("selection length: %d",len);
+    move((LINES/2)+1,COLS/2);
+    printw("selection: ");
+    printw(item);
 
     move(pos[0]+1,5+len);
     for (int i=0; i<13-len; i++) {
