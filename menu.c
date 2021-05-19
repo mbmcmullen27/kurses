@@ -6,8 +6,10 @@ typedef struct Menu Menu;
 typedef struct Item Item;
 typedef struct Cursor Cursor;
 
-void levelTwo(int*, char*);
-void levelOne(int*, Item**);
+void levelTwo(int*, Item*);
+void levelOne(int, int, Item**);
+void addSubMenu(char*,Menu*,int,char**);
+
 
 struct Cursor {
     int sel[2];
@@ -45,6 +47,18 @@ int main(){
         "Kubectl"
     };
 
+    char *options[9] = {
+        "Get-Credentials",
+        "Theme",
+        "Keybinds",
+        "Crontab",
+        "Config File Path: ~/.config/kurses",
+        "Integrations",
+        "Storage",
+        "Accessibility Settings",
+        NULL
+    };
+
     int size = sizeof items / sizeof (items[0]);
     menu.length = size;
     menu.items = malloc(sizeof(Item) * size); 
@@ -58,6 +72,9 @@ int main(){
         menu.items[i] = cur;
     }
 
+    addSubMenu("Options", &menu, 3, options);
+
+
     keypad(stdscr,TRUE);
     do {
         // //print menu items
@@ -70,16 +87,24 @@ int main(){
         int pos = cursor.sel[0];
         int level = cursor.depth;
         move(0,0);
-        printw("sel[0]: %d, sel[1]: %d , pos: %d",cursor.sel[0],cursor.sel[1],pos);
-        levelOne(cursor.sel,menu.items);
+        printw("sel[0]: %d, sel[1]: %d, level: %d, length: %d",cursor.sel[0],cursor.sel[1],level, menu.length);
+
+        levelOne(cursor.sel[0],0,menu.items);
+        
         if(level>0){
-            levelTwo(cursor.sel, menu.items[pos]->name);
+            levelTwo(cursor.sel, menu.items[pos]);
         } 
         ch = getch();
         switch(ch) {
             case KEY_DOWN:
-                if (cursor.sel[level] < lvllen[level]-1)
-                    cursor.sel[level]++;
+                if (level==1){
+                    Item *item = menu.items[pos];
+                    if (cursor.sel[1] < item->submenu->length-1)
+                        cursor.sel[1]++;
+                } else {
+                    if (cursor.sel[0] < menu.length-1)
+                        cursor.sel[0]++;
+                }
                 break;
             case KEY_UP:
                 if (cursor.sel[level] > 0) cursor.sel[level]--;
@@ -102,26 +127,27 @@ int main(){
     return(0);
 }
 
-void levelOne(int *pos, Item **items) {
+void levelOne(int sel, int x, Item **items) {
     for (int i=0;i<6;i++) {
-        move(i+1,4);
+        move(i+1,x+4);
         addstr(items[i]->name);
     }
 
-    move(pos[0]+1,1);
+    move(sel+1,x+1);
     addch(A_ALTCHARSET | ACS_HLINE);
     addstr(">");
     
     refresh();
 }
 
-void levelTwo(int *pos, char *item) {
+void levelTwo(int *pos, Item *selection) {
+    char *name = selection->name;
     move(LINES/2,COLS/2);
-    int len=strlen(item);
+    int len=strlen(name);
     printw("selection length: %d",len);
     move((LINES/2)+1,COLS/2);
     printw("selection: ");
-    printw(item);
+    printw(name);
 
     move(pos[0]+1,5+len);
     for (int i=0; i<13-len; i++) {
@@ -150,5 +176,25 @@ void levelTwo(int *pos, char *item) {
             mvaddch(i+1,17,A_ALTCHARSET | ACS_VLINE);
     }
 
+    // levelOne(pos[0],17,selection->submenu->items);
+
     refresh();
+}
+
+void addSubMenu(char *name, Menu *menu, int pos, char **items) {
+
+    Menu temp;
+    int size=0;    
+    while(items[size]) size++;
+
+    temp.items = malloc(sizeof(Item) * size);
+
+    for(int i=0;i<size;i++) {
+        Item *cur = malloc(sizeof(Item));
+        cur->name = items[i];
+        temp.items[i] = cur;
+    }
+    temp.length = size;
+
+    menu->items[pos]->submenu = &temp;
 }

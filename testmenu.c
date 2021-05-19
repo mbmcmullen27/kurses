@@ -39,7 +39,7 @@ int main(){
         "Kubectl"
     };
 
-    char *scripts[4] = {
+    char *scripts[5] = {
         "Build",
         "Deploy",
         "Edit",
@@ -47,7 +47,7 @@ int main(){
         NULL
     };
 
-    char *kinds[5] = {
+    char *kinds[6] = {
         "Pods",
         "Deployments",
         "Services",
@@ -82,7 +82,7 @@ int main(){
 
     addSubMenu("Jobs", &menu, 0, scripts);
     addSubMenu("Manifests", &menu, 1, kinds);
-    addSubMenu("Options", &menu, 3, options);
+    // addSubMenu("Options", &menu, 3, options);
     
     //print menu items
     printf("Menu item names:\n");

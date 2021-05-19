@@ -42,3 +42,7 @@ int main(){
 }
 
 ```
+#### 5/19 
+- similar problem as yesterday, but with whole submenu instead of just entries
+- each submenu is getting unique entries, but when we add it to the menu, the old ones get overwritten
+- testmenu.c results in 3 menus with the same entries (I'm not making a new pointer successfully somewhere where I think I am...)
