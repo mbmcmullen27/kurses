@@ -176,25 +176,25 @@ void levelTwo(int *pos, Item *selection) {
             mvaddch(i+1,17,A_ALTCHARSET | ACS_VLINE);
     }
 
-    // levelOne(pos[0],17,selection->submenu->items);
+    levelOne(pos[0],17,selection->submenu->items);
 
     refresh();
 }
 
 void addSubMenu(char *name, Menu *menu, int pos, char **items) {
 
-    Menu temp;
-    int size=0;    
+    Menu *temp = malloc(sizeof(Menu));
+    int size=0;     //sizeof items / sizeof (items[0]);
+
     while(items[size]) size++;
 
-    temp.items = malloc(sizeof(Item) * size);
+    temp->items = malloc(sizeof(Item) * size);
 
     for(int i=0;i<size;i++) {
         Item *cur = malloc(sizeof(Item));
         cur->name = items[i];
-        temp.items[i] = cur;
+        temp->items[i] = cur;
     }
-    temp.length = size;
-
-    menu->items[pos]->submenu = &temp;
+    temp->length = size;
+    menu->items[pos]->submenu = temp;
 }

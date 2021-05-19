@@ -82,7 +82,7 @@ int main(){
 
     addSubMenu("Jobs", &menu, 0, scripts);
     addSubMenu("Manifests", &menu, 1, kinds);
-    // addSubMenu("Options", &menu, 3, options);
+    addSubMenu("Options", &menu, 3, options);
     
     //print menu items
     printf("Menu item names:\n");
@@ -102,19 +102,18 @@ int main(){
 
 void addSubMenu(char *name, Menu *menu, int pos, char **items) {
 
-    Menu temp;
+    Menu *temp = malloc(sizeof(Menu));
     int size=0;     //sizeof items / sizeof (items[0]);
 
     while(items[size]) size++;
 
-    temp.items = malloc(sizeof(Item) * size);
+    temp->items = malloc(sizeof(Item) * size);
 
     for(int i=0;i<size;i++) {
         Item *cur = malloc(sizeof(Item));
         cur->name = items[i];
-        temp.items[i] = cur;
+        temp->items[i] = cur;
     }
-    temp.length = size;
-
-    menu->items[pos]->submenu = &temp;
+    temp->length = size;
+    menu->items[pos]->submenu = temp;
 }
