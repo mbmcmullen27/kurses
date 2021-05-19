@@ -10,8 +10,9 @@ clang menu.c -l ncurses
 
 Some funny business with pointers and structs, our Menu struct holds an array of Item pointers. When we initalize this list, if we aren't careful we don't make a new item and we recycle a single pointer. 
 My initial thought was because :
-    - you need to initialize the pointers
-    - __then__ you initialize the objects
+
+- you need to initialize the list pointers
+- __then__ you initialize the structs
 
 But this line isn't allocating space for pointers, we use sizeof(Item), not sizeof(*Item). Needs more research. We either got this right, or we're requesting twice as much space as we need.
 

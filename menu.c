@@ -2,22 +2,25 @@
 #include <stdlib.h>
 #include <string.h>
 
-void levelOne(int*, char**);
-void levelTwo(int*, char*);
+typedef struct Menu Menu;
+typedef struct Item Item;
 
-typedef struct Item {
+void levelTwo(int*, char*);
+void levelOne(int*, Item**);
+
+struct Item {
     char *name;
     void (*action)(int);
-    struct Menu *submenu;
-} Item;
+    Menu *submenu;
+};
 
-typedef struct Menu {
+struct Menu {
     char *title;
     int sel[2];
     int level;
     int length;
     Item **items;
-} Menu;
+};
 
 int main(){
 
@@ -62,7 +65,7 @@ int main(){
         int pos = menu.sel[0];
         move(0,0);
         printw("menu.sel[0]: %d, menu.sel[1]: %d , pos: %d",menu.sel[0],menu.sel[1],pos);
-        levelOne(menu.sel,items);
+        levelOne(menu.sel,menu.items);
         if(menu.level>0){
             int selection = pos;
             levelTwo(menu.sel, menu.items[selection]->name);
@@ -94,10 +97,10 @@ int main(){
     return(0);
 }
 
-void levelOne(int *pos, char **items) {
+void levelOne(int *pos, Item **items) {
     for (int i=0;i<6;i++) {
         move(i+1,4);
-        addstr(items[i]);
+        addstr(items[i]->name);
     }
 
     move(pos[0]+1,1);
