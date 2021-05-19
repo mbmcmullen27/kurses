@@ -4,9 +4,15 @@
 
 typedef struct Menu Menu;
 typedef struct Item Item;
+typedef struct Cursor Cursor;
 
 void levelTwo(int*, char*);
 void levelOne(int*, Item**);
+
+struct Cursor {
+    int sel[2];
+    int depth;
+};
 
 struct Item {
     char *name;
@@ -16,8 +22,6 @@ struct Item {
 
 struct Menu {
     char *title;
-    int sel[2];
-    int level;
     int length;
     Item **items;
 };
@@ -26,8 +30,9 @@ int main(){
 
     struct Menu menu;
     menu.title = "Main";
-    menu.level = 0;
-    menu.sel[0] = menu.sel[0] = 0;
+    Cursor cursor;
+    cursor.sel[0] = cursor.sel[1] = 0;
+    cursor.depth=0;
     int lvllen[2] = {6,6};
 
     int ch;
@@ -62,29 +67,29 @@ int main(){
         // }
         // refresh();
         
-        int pos = menu.sel[0];
+        int pos = cursor.sel[0];
+        int level = cursor.depth;
         move(0,0);
-        printw("menu.sel[0]: %d, menu.sel[1]: %d , pos: %d",menu.sel[0],menu.sel[1],pos);
-        levelOne(menu.sel,menu.items);
-        if(menu.level>0){
-            int selection = pos;
-            levelTwo(menu.sel, menu.items[selection]->name);
+        printw("sel[0]: %d, sel[1]: %d , pos: %d",cursor.sel[0],cursor.sel[1],pos);
+        levelOne(cursor.sel,menu.items);
+        if(level>0){
+            levelTwo(cursor.sel, menu.items[pos]->name);
         } 
         ch = getch();
         switch(ch) {
             case KEY_DOWN:
-                if (menu.sel[menu.level] < lvllen[menu.level]-1)
-                    menu.sel[menu.level]++;
+                if (cursor.sel[level] < lvllen[level]-1)
+                    cursor.sel[level]++;
                 break;
             case KEY_UP:
-                if (menu.sel[menu.level] > 0) menu.sel[menu.level]--;
+                if (cursor.sel[level] > 0) cursor.sel[level]--;
                 break;
             case KEY_LEFT:
-                if (menu.level > 0) menu.level--;
+                if (level > 0) cursor.depth--;
                 break;
             case KEY_RIGHT:
-                if (menu.level < 1) menu.level++;
-                menu.sel[menu.level]=pos;
+                if (level < 1) cursor.depth++;
+                cursor.sel[cursor.depth]=pos;
                 break;
             default:
                 break;
