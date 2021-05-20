@@ -53,11 +53,13 @@ char *items[6] = {
         "Kubectl"
     };
 
-char *scripts[5] = {
+char *scripts[7] = {
     "Build",
     "Deploy",
     "Edit",
     "Destroy",
+    "Devops/util",
+    "Python/scratch",
     NULL
 };
 
@@ -70,15 +72,43 @@ char *kinds[6] = {
     NULL
 };
 
-char *options[9] = {
-    "Get-Credentials",
+char *tools[8] = {
+    "Curl-Pod",
+    "Ping-Pod",
+    "Goldfish",
+    "Clusterbuster",
+    "Porpoise",
+    "Sniff",
+    "Kurses",
+    NULL
+};
+
+char *options[7] = {
     "Theme",
     "Keybinds",
     "Crontab",
-    "Config File Path: ~/.config/kurses",
     "Integrations",
     "Storage",
     "Accessibility",
+    NULL
+};
+
+char *context[8] = {
+    "Account",
+    "Service Bus",
+    "Get-Credentials",
+    "Security Policy",
+    "AKS version: 0.0.1",
+    "Kubernetes version: 1.19.9",
+    "Config File Path: ~/.config/kurses",
+    NULL
+};
+
+char *kubectl[5] = {
+    "Get...",
+    "Describe...",
+    "Exec...",
+    "Rollout Restart...",
     NULL
 };
 

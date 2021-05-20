@@ -34,7 +34,10 @@ int main(){
 
     addSubMenu("Jobs", &menu, 0, scripts);
     addSubMenu("Manifests", &menu, 1, kinds);
+    addSubMenu("tools", &menu, 2, tools);
     addSubMenu("Options", &menu, 3, options);
+    addSubMenu("Context", &menu, 4, context);
+    addSubMenu("Kubectl", &menu, 5, kubectl);
 
 
     keypad(stdscr,TRUE);
