@@ -7,13 +7,16 @@ typedef struct Item Item;
 typedef struct Cursor Cursor;
 
 void levelTwo(int*, Item*);
-void levelOne(int, int, Item**);
+void levelOne(int, int, Menu*);
 void addSubMenu(char*,Menu*,int,char**);
+void drawCursor(Cursor*);
+
 
 
 struct Cursor {
     int sel[2];
     int depth;
+    char* selection;
 };
 
 struct Item {
@@ -77,23 +80,20 @@ int main(){
 
     keypad(stdscr,TRUE);
     do {
-        // //print menu items
-        // for(int i=0;i<menu.length;i++) {
-        //     move((LINES/2)+i,0);
-        //     printw(menu.items[i]->name);
-        // }
-        // refresh();
-        
         int pos = cursor.sel[0];
         int level = cursor.depth;
+        cursor.selection = menu.items[pos]->name;
         move(0,0);
         printw("sel[0]: %d, sel[1]: %d, level: %d, length: %d",cursor.sel[0],cursor.sel[1],level, menu.length);
 
-        levelOne(cursor.sel[0],0,menu.items);
+        levelOne(cursor.sel[0],0,&menu);
+        drawCursor(&cursor);
         
         if(level>0){
             levelTwo(cursor.sel, menu.items[pos]);
         } 
+
+
         ch = getch();
         switch(ch) {
             case KEY_DOWN:
@@ -127,17 +127,51 @@ int main(){
     return(0);
 }
 
-void levelOne(int sel, int x, Item **items) {
-    for (int i=0;i<6;i++) {
-        move(i+1,x+4);
-        addstr(items[i]->name);
-    }
+void drawCursor(Cursor *pos){
+    if (pos->depth == 0) {
+        move(pos->sel[0]+1,1);
+        addch(A_ALTCHARSET | ACS_HLINE);
+        addstr(">");
 
-    move(sel+1,x+1);
-    addch(A_ALTCHARSET | ACS_HLINE);
-    addstr(">");
+    } else if (pos->depth > 0)  {
+        int len=strlen(pos->selection);
+        move(pos->sel[0]+1,5+len);
+        for (int i=0; i<13-len; i++) {
+            insch(A_ALTCHARSET | ACS_HLINE);
+        }
+
+        move(pos->sel[0]+1,17);
+        if ( pos->sel[1]<pos->sel[0] ) {
+            addch(A_ALTCHARSET | ACS_LRCORNER);
+            move(pos->sel[1]+1,17);
+            addch(A_ALTCHARSET | ACS_ULCORNER);
+        } else if ( pos->sel[1]>pos->sel[0] ) {
+            addch(A_ALTCHARSET | ACS_URCORNER);
+            move(pos->sel[1]+1,17);
+            addch(A_ALTCHARSET | ACS_LLCORNER);
+        } else {
+            addch(A_ALTCHARSET | ACS_HLINE);
+        }
+        addch(A_ALTCHARSET | ACS_HLINE);
+        addstr(">");
+
+        for (int i=0;i<=6;i++) {
+            if(i<pos->sel[0] && i > pos->sel[1])
+                mvaddch(i+1,17,A_ALTCHARSET | ACS_VLINE);
+            if(i>pos->sel[0] && i < pos->sel[1])
+                mvaddch(i+1,17,A_ALTCHARSET | ACS_VLINE);
+        }
+
+    }
     
     refresh();
+}
+
+void levelOne(int sel, int x, Menu *menu) {
+    for (int i=0;i<menu->length;i++) {
+        move(i+1,x+4);
+        addstr(menu->items[i]->name);
+    }
 }
 
 void levelTwo(int *pos, Item *selection) {
@@ -149,34 +183,7 @@ void levelTwo(int *pos, Item *selection) {
     printw("selection: ");
     printw(name);
 
-    move(pos[0]+1,5+len);
-    for (int i=0; i<13-len; i++) {
-        insch(A_ALTCHARSET | ACS_HLINE);
-    }
-
-    move(pos[0]+1,17);
-    if ( pos[1]<pos[0] ) {
-        addch(A_ALTCHARSET | ACS_LRCORNER);
-        move(pos[1]+1,17);
-        addch(A_ALTCHARSET | ACS_ULCORNER);
-    } else if ( pos[1]>pos[0] ) {
-        addch(A_ALTCHARSET | ACS_URCORNER);
-        move(pos[1]+1,17);
-        addch(A_ALTCHARSET | ACS_LLCORNER);
-    } else {
-        addch(A_ALTCHARSET | ACS_HLINE);
-    }
-    addch(A_ALTCHARSET | ACS_HLINE);
-    addstr(">");
-
-    for (int i=0;i<=6;i++) {
-        if(i<pos[0] && i > pos[1])
-            mvaddch(i+1,17,A_ALTCHARSET | ACS_VLINE);
-        if(i>pos[0] && i < pos[1])
-            mvaddch(i+1,17,A_ALTCHARSET | ACS_VLINE);
-    }
-
-    levelOne(pos[0],17,selection->submenu->items);
+    levelOne(pos[0],17,selection->submenu);
 
     refresh();
 }
@@ -184,7 +191,7 @@ void levelTwo(int *pos, Item *selection) {
 void addSubMenu(char *name, Menu *menu, int pos, char **items) {
 
     Menu *temp = malloc(sizeof(Menu));
-    int size=0;     //sizeof items / sizeof (items[0]);
+    int size=0;    
 
     while(items[size]) size++;
 
