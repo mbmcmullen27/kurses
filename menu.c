@@ -1,35 +1,11 @@
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
-
-typedef struct Menu Menu;
-typedef struct Item Item;
-typedef struct Cursor Cursor;
+#include "menu.h"
 
 void levelTwo(int*, Item*);
 void levelOne(int, int, Menu*);
-void addSubMenu(char*,Menu*,int,char**);
 void drawCursor(Cursor*);
-
-
-
-struct Cursor {
-    int sel[2];
-    int depth;
-    char* selection;
-};
-
-struct Item {
-    char *name;
-    void (*action)(int);
-    Menu *submenu;
-};
-
-struct Menu {
-    char *title;
-    int length;
-    Item **items;
-};
 
 int main(){
 
@@ -58,7 +34,7 @@ int main(){
         "Config File Path: ~/.config/kurses",
         "Integrations",
         "Storage",
-        "Accessibility Settings",
+        "Accessibility",
         NULL
     };
 
@@ -186,22 +162,4 @@ void levelTwo(int *pos, Item *selection) {
     levelOne(pos[0],17,selection->submenu);
 
     refresh();
-}
-
-void addSubMenu(char *name, Menu *menu, int pos, char **items) {
-
-    Menu *temp = malloc(sizeof(Menu));
-    int size=0;    
-
-    while(items[size]) size++;
-
-    temp->items = malloc(sizeof(Item) * size);
-
-    for(int i=0;i<size;i++) {
-        Item *cur = malloc(sizeof(Item));
-        cur->name = items[i];
-        temp->items[i] = cur;
-    }
-    temp->length = size;
-    menu->items[pos]->submenu = temp;
 }

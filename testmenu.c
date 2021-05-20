@@ -1,33 +1,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-
-typedef struct Menu Menu;
-typedef struct Item Item;
+#include "menu.h"
 
 void levelOne(int*, char**);
 void levelTwo(int*, char*);
 
-void addSubMenu(char*,Menu*,int,char**);
-
-struct Item {
-    char *name;
-    Menu *submenu;
-};
-
-struct Menu {
-    char *title;
-    int sel[2];
-    int level;
-    int length;
-    Item **items;
-};
 
 int main(){
 
     Menu menu;
+    Cursor cursor;
     menu.title = "Main";
-    menu.level = 0;
+    cursor.depth = 0;
     menu.length = 6;
 
     char *items[6] = {
@@ -100,20 +85,3 @@ int main(){
     return 0;
 }
 
-void addSubMenu(char *name, Menu *menu, int pos, char **items) {
-
-    Menu *temp = malloc(sizeof(Menu));
-    int size=0;     //sizeof items / sizeof (items[0]);
-
-    while(items[size]) size++;
-
-    temp->items = malloc(sizeof(Item) * size);
-
-    for(int i=0;i<size;i++) {
-        Item *cur = malloc(sizeof(Item));
-        cur->name = items[i];
-        temp->items[i] = cur;
-    }
-    temp->length = size;
-    menu->items[pos]->submenu = temp;
-}
