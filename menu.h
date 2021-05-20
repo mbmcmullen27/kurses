@@ -44,4 +44,42 @@ void addSubMenu(char *name, Menu *menu, int pos, char **items) {
     menu->items[pos]->submenu = temp;
 }
 
+char *items[6] = {
+        "Jobs",
+        "Manifests",
+        "Tools",
+        "Options",
+        "Context",
+        "Kubectl"
+    };
+
+char *scripts[5] = {
+    "Build",
+    "Deploy",
+    "Edit",
+    "Destroy",
+    NULL
+};
+
+char *kinds[6] = {
+    "Pods",
+    "Deployments",
+    "Services",
+    "Ingresses",
+    "Configmaps",
+    NULL
+};
+
+char *options[9] = {
+    "Get-Credentials",
+    "Theme",
+    "Keybinds",
+    "Crontab",
+    "Config File Path: ~/.config/kurses",
+    "Integrations",
+    "Storage",
+    "Accessibility",
+    NULL
+};
+
 #endif

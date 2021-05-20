@@ -17,26 +17,6 @@ int main(){
     int lvllen[2] = {6,6};
 
     int ch;
-    char *items[6] = {
-        "Jobs",
-        "Manifests",
-        "Tools",
-        "Options",
-        "Context",
-        "Kubectl"
-    };
-
-    char *options[9] = {
-        "Get-Credentials",
-        "Theme",
-        "Keybinds",
-        "Crontab",
-        "Config File Path: ~/.config/kurses",
-        "Integrations",
-        "Storage",
-        "Accessibility",
-        NULL
-    };
 
     int size = sizeof items / sizeof (items[0]);
     menu.length = size;
@@ -51,6 +31,9 @@ int main(){
         menu.items[i] = cur;
     }
 
+
+    addSubMenu("Jobs", &menu, 0, scripts);
+    addSubMenu("Manifests", &menu, 1, kinds);
     addSubMenu("Options", &menu, 3, options);
 
 
