@@ -2,8 +2,14 @@
 
 ```bash
 # compile with clang and run
-clang menu.c -l ncurses
-./a.out
+clang -c menu.c
+clang -c main.c
+clang main.o menu.o -o kurses -lncurses
+./kurses
+
+# or build using provide Makefile
+make kurses
+./kurses
 ```
 
 ## Pointers & Structs & Arrays & Arrays of Structs & Pointers 
