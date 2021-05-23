@@ -10,6 +10,8 @@ typedef struct Item Item;
 typedef struct Cursor Cursor;
 
 void addSubMenu(char*,Menu*,int,char**);
+void initializeMenu(Menu*);
+void initializeCursor(Cursor*);
 
 struct Cursor {
     int sel[2];
