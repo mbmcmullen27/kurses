@@ -1,6 +1,9 @@
 #ifndef MENU_HEADER
 #define MENU_HEADER
 
+#include <ncurses.h>
+#include <stdlib.h>
+#include <string.h>
 
 typedef struct Menu Menu;
 typedef struct Item Item;
@@ -12,6 +15,7 @@ struct Cursor {
     int sel[2];
     int depth;
     char* selection;
+    WINDOW **cwin;
 };
 
 struct Item {
@@ -24,27 +28,10 @@ struct Menu {
     char *title;
     int length;
     Item **items;
+    WINDOW *win;
 };
 
-void addSubMenu(char *name, Menu *menu, int pos, char **items) {
-
-    Menu *temp = malloc(sizeof(Menu));
-    int size=0;    
-
-    while(items[size]) size++;
-
-    temp->items = malloc(sizeof(Item) * size);
-
-    for(int i=0;i<size;i++) {
-        Item *cur = malloc(sizeof(Item));
-        cur->name = items[i];
-        temp->items[i] = cur;
-    }
-    temp->length = size;
-    menu->items[pos]->submenu = temp;
-}
-
-char *items[6] = {
+static char *items[6] = {
         "Jobs",
         "Manifests",
         "Tools",
@@ -53,7 +40,7 @@ char *items[6] = {
         "Kubectl"
     };
 
-char *scripts[7] = {
+static char *scripts[7] = {
     "Build",
     "Deploy",
     "Edit",
@@ -63,7 +50,7 @@ char *scripts[7] = {
     NULL
 };
 
-char *kinds[6] = {
+static char *kinds[6] = {
     "Pods",
     "Deployments",
     "Services",
@@ -72,7 +59,7 @@ char *kinds[6] = {
     NULL
 };
 
-char *tools[8] = {
+static char *tools[8] = {
     "Curl-Pod",
     "Ping-Pod",
     "Goldfish",
@@ -83,7 +70,7 @@ char *tools[8] = {
     NULL
 };
 
-char *options[7] = {
+static char *options[7] = {
     "Theme",
     "Keybinds",
     "Crontab",
@@ -93,7 +80,7 @@ char *options[7] = {
     NULL
 };
 
-char *context[8] = {
+static char *context[8] = {
     "Account",
     "Service Bus",
     "Get-Credentials",
@@ -104,7 +91,7 @@ char *context[8] = {
     NULL
 };
 
-char *kubectl[5] = {
+static char *kubectl[5] = {
     "Get...",
     "Describe...",
     "Exec...",
