@@ -14,7 +14,6 @@ int main(){
     Cursor cursor;
     cursor.sel[0] = cursor.sel[1] = 0;
     cursor.depth=0;
-    int lvllen[2] = {6,6};
 
     int ch;
 
@@ -24,7 +23,7 @@ int main(){
 
     initscr();
 
-    //build menu
+    // build menu
     for(int i=0;i<size;i++) {
         Item *cur = malloc(sizeof(Item));
         cur->name = items[i];
@@ -40,6 +39,7 @@ int main(){
     addSubMenu("Kubectl", &menu, 5, kubectl);
 
 
+    // main loop
     keypad(stdscr,TRUE);
     do {
         int pos = cursor.sel[0];
@@ -76,7 +76,10 @@ int main(){
                 break;
             case KEY_RIGHT:
                 if (level < 1) cursor.depth++;
-                cursor.sel[cursor.depth]=pos;
+                if ( pos+1 > menu.items[pos]->submenu->length )
+                    cursor.sel[cursor.depth]=menu.items[pos]->submenu->length - 1;
+                else
+                    cursor.sel[cursor.depth]=pos;
                 break;
             default:
                 break;
