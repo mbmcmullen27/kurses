@@ -62,7 +62,7 @@ int main(){
                 if(level<1){
                     level++;
                 
-                    next = menu.items[pos[level]]->submenu;
+                    next = menu.items[cursor->sel]->submenu;
                     drawMenu(next);
                     activeMenu=next;
                     cursor=activeMenu->cursor;

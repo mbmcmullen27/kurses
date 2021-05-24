@@ -1,67 +1,76 @@
 #include "menu.h"
 
-void levelTwo(int*, Item*);
-void levelOne(int, int, Menu*);
 void drawCursor(Cursor*);
+void drawMenu(Menu*);
+void drawLines(Menu*,Menu*);
 
 int main(){
 
+    Cursor *cursor = malloc(sizeof(Cursor));
+    Menu *activeMenu = malloc(sizeof(Menu));
     Menu menu;
-    Cursor cursor;
+    WINDOW *titlebar;
     int ch;
 
     initscr();
-    curs_set(0);
-    
-    initializeCursor(&cursor);
+    // curs_set(0);
+    refresh();
+
     initializeMenu(&menu);
 
-    // main loop
+    titlebar = derwin(stdscr,1,COLS,0,0);
+
     keypad(stdscr,TRUE);
+    drawMenu(&menu);
+    int level = 0;
+    activeMenu = &menu;
+    cursor=activeMenu->cursor;
     do {
-        int pos = cursor.sel[0];
-        int level = cursor.depth;
-        cursor.selection = menu.items[pos]->name;
-        move(0,0);
-        printw("sel[0]: %d, sel[1]: %d, level: %d, length: %d",cursor.sel[0],cursor.sel[1],level, menu.length);
+        curs_set(0);
+        int pos[] = { menu.cursor->sel, menu.cursor->sel };
+        werase(titlebar);
+        wprintw(titlebar,"sel: %d, activeLength: %d, coffset: %d",cursor->sel, activeMenu->length,cursor->offset);
+        wrefresh(titlebar);
 
-        levelOne(cursor.sel[0],0,&menu);
-        drawCursor(&cursor);
-        
-        if(level>0){
-            levelTwo(cursor.sel, menu.items[pos]);
-        } 
+        drawCursor(cursor);
+        if (level > 0) drawLines(&menu,activeMenu);
 
-
-        ch = getch();
+        Menu *next;
+        ch = wgetch(cursor->win);
         switch(ch) {
             case KEY_DOWN:
-                if (level==1){
-                    Item *item = menu.items[pos];
-                    if (cursor.sel[1] < item->submenu->length-1)
-                        cursor.sel[1]++;
-                } else {
-                    if (cursor.sel[0] < menu.length-1)
-                        cursor.sel[0]++;
-                }
+                if (cursor->sel < activeMenu->length-1)
+                    cursor->sel++;
                 break;
             case KEY_UP:
-                if (cursor.sel[level] > 0) cursor.sel[level]--;
+                if (cursor->sel > 0) 
+                    cursor->sel--;
                 break;
             case KEY_LEFT:
-                if (level > 0) cursor.depth--;
+                if(level>0){
+                    werase(menu.items[menu.cursor->sel]->submenu->win);
+                    wrefresh(menu.items[menu.cursor->sel]->submenu->win);
+                    werase(cursor->win);
+                    wrefresh(cursor->win);
+                    level--;
+                    activeMenu=&menu;
+                    cursor=activeMenu->cursor;
+                }
                 break;
             case KEY_RIGHT:
-                if (level < 1) cursor.depth++;
-                if ( pos+1 > menu.items[pos]->submenu->length )
-                    cursor.sel[cursor.depth]=menu.items[pos]->submenu->length - 1;
-                else
-                    cursor.sel[cursor.depth]=pos;
+                // if (menu->items[pos]->submenu) break;
+                if(level<1){
+                    level++;
+                
+                    next = menu.items[cursor->sel]->submenu;
+                    drawMenu(next);
+                    activeMenu=next;
+                    cursor=activeMenu->cursor;
+                }
                 break;
             default:
                 break;
         }
-        clear();
     } while (ch != 27);
 
 
@@ -69,63 +78,47 @@ int main(){
     return(0);
 }
 
-void drawCursor(Cursor *pos){
-    if (pos->depth == 0) {
-        move(pos->sel[0]+1,1);
-        addch(A_ALTCHARSET | ACS_HLINE);
-        addstr(">");
-
-    } else if (pos->depth > 0)  {
-        int len=strlen(pos->selection);
-        move(pos->sel[0]+1,5+len);
-        for (int i=0; i<13-len; i++) {
-            insch(A_ALTCHARSET | ACS_HLINE);
-        }
-
-        move(pos->sel[0]+1,17);
-        if ( pos->sel[1]<pos->sel[0] ) {
-            addch(A_ALTCHARSET | ACS_LRCORNER);
-            move(pos->sel[1]+1,17);
-            addch(A_ALTCHARSET | ACS_ULCORNER);
-        } else if ( pos->sel[1]>pos->sel[0] ) {
-            addch(A_ALTCHARSET | ACS_URCORNER);
-            move(pos->sel[1]+1,17);
-            addch(A_ALTCHARSET | ACS_LLCORNER);
-        } else {
-            addch(A_ALTCHARSET | ACS_HLINE);
-        }
-        addch(A_ALTCHARSET | ACS_HLINE);
-        addstr(">");
-
-        for (int i=0;i<=6;i++) {
-            if(i<pos->sel[0] && i > pos->sel[1])
-                mvaddch(i+1,17,A_ALTCHARSET | ACS_VLINE);
-            if(i>pos->sel[0] && i < pos->sel[1])
-                mvaddch(i+1,17,A_ALTCHARSET | ACS_VLINE);
-        }
-
-    }
-    
-    refresh();
+//wgetch does an implicit refresh so we don't need one in this function
+void drawCursor(Cursor *cursor){
+    werase(cursor->win);
+    mvwaddstr(cursor->win,cursor->sel,1, ">");
 }
 
-void levelOne(int sel, int x, Menu *menu) {
+void drawLines(Menu *left, Menu *right){
+    int pos1 = left->cursor->sel;
+    int pos2 = right->cursor->sel;
+
+    WINDOW *r=right->cursor->win;
+    // werase(r);
+    if(pos1<pos2) {
+        wmove(r,pos1,0);
+        waddch(r,A_ALTCHARSET | ACS_URCORNER);
+        wmove(r,pos1+1,0);
+        wvline(r,0,pos2-pos1-1);
+        wmove(r,pos2,0);
+        waddch(r,A_ALTCHARSET | ACS_LLCORNER);
+    }else if(pos2<pos1){
+        wmove(r,pos2,0);
+        waddch(r,A_ALTCHARSET | ACS_ULCORNER);
+        wmove(r,pos2+1,0);
+        wvline(r,0,pos1-pos2);
+        wmove(r,pos1,0);
+        waddch(r,A_ALTCHARSET | ACS_LRCORNER);
+    }else{
+        wmove(r,pos2,0);
+        whline(r,0,1);
+    }
+
+}
+
+void drawMenu(Menu *menu){
+    werase(menu->win);
     for (int i=0;i<menu->length;i++) {
-        move(i+1,x+4);
-        addstr(menu->items[i]->name);
+        mvwaddstr(
+            menu->win,
+            i,0,
+            menu->items[i]->name
+        );
     }
-}
-
-void levelTwo(int *pos, Item *selection) {
-    char *name = selection->name;
-    move(LINES/2,COLS/2);
-    int len=strlen(name);
-    printw("selection length: %d",len);
-    move((LINES/2)+1,COLS/2);
-    printw("selection: ");
-    printw(name);
-
-    levelOne(pos[0],17,selection->submenu);
-
-    refresh();
+    wrefresh(menu->win);
 }
