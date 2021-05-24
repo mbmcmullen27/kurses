@@ -1,18 +1,18 @@
 all: kurses tests
-kurses: menu.o main.o
-	clang menu.o main.o -o kurses -lncurses
-menu.o: menu.c menu.h
-	clang -c menu.c
-main.o: main.c menu.h
-	clang -c main.c
-tests: menutest cursortest
-menutest: testmenu.o menu.o
-	clang testmenu.o menu.o -o test -lncurses
-testmenu.o: testmenu.c menu.h
-	clang -c testmenu.c
-cursortest: testcursor.o menu.o
-	clang testcursor.o menu.o -o ctest -lncurses
-testcursor.o: testcursor.c menu.h
-	clang -c testcursor.c
+kurses: src/menu.o src/main.o
+	clang src/menu.o src/main.o -o kurses -lncurses
+src/menu.o: src/menu.c src/menu.h
+	clang -c src/menu.c -o src/menu.o
+src/main.o: src/main.c src/menu.h
+	clang -c src/main.c -o src/main.o
+tests: content cursor
+content: test/test-contents.o src/menu.o
+	clang test/contents.o src/menu.o -o test/content.test -lncurses
+test/contents.o: test/test-contents.c src/menu.h
+	clang -c test/test-contents.c -o test/contents.o
+cursor: test/cursor.o src/menu.o
+	clang test/cursor.o src/menu.o -o test/cursor.test -lncurses
+test/cursor.o: test/test-cursor.c src/menu.h
+	clang -c test/test-cursor.c -o test/cursor.o
 clean:
-	rm *.o kurses test
+	rm *.o kurses test/*.o test/*.test

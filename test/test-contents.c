@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "menu.h"
+#include "../src/menu.h"
 
 void levelOne(int*, char**);
 void levelTwo(int*, char*);
