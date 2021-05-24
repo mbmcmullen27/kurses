@@ -11,6 +11,8 @@ int main(){
     int ch;
 
     initscr();
+    curs_set(0);
+    
     initializeCursor(&cursor);
     initializeMenu(&menu);
 
