@@ -10,13 +10,11 @@ typedef struct Item Item;
 typedef struct Cursor Cursor;
 
 void addSubMenu(char*,Menu*,int,char**);
-void initializeMenu(Menu*,int);
-void initializeCursor(Cursor*);
+void initializeMenu(Menu*);
 
 struct Cursor {
-    int sel[2];
-    int depth;
-    char *selection;
+    int sel;
+    int offset;
     WINDOW *win;
 };
 
@@ -34,6 +32,7 @@ struct Menu {
     int offset;
     Item **items;
     WINDOW *win;
+    Cursor *cursor;
 };
 
 static char *items[6] = {

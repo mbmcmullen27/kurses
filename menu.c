@@ -3,37 +3,44 @@
 void addSubMenu(char *name, Menu *menu, int pos, char **items) {
 
     Menu *temp = malloc(sizeof(Menu));
-    int size=0;    
-    int width=0;
-    while(items[size]){
-        if(width < strlen(items[size]))
-            width = strlen(items[size]);
-        size++;
-    }   
+    Cursor *cursor;
+    cursor = malloc(sizeof(Cursor));
+    cursor->sel=0;
+    WINDOW *win;
+    temp->width = 0;
+    int size = 0;
+    while(items[size]) size++;
 
     temp->items = malloc(sizeof(Item) * size);
 
     for(int i=0;i<size;i++) {
         Item *cur = malloc(sizeof(Item));
+        if (temp->width < strlen(items[i])) {
+            temp->width = strlen(items[i]);
+        }
         cur->name = items[i];
+        cur->submenu = NULL;
         temp->items[i] = cur;
     }
 
     temp->length = size;
-    temp->width = width;
-    temp->offset = menu->offset+menu->width+5;
-    temp->win=derwin(stdscr,size,width,1,temp->offset);
+    cursor->offset = menu->offset+menu->width+3;
+    cursor->win = derwin(stdscr,size,3,1,cursor->offset);
+    temp->offset = cursor->offset+3;
+    temp->win = derwin(stdscr,size,temp->width,1,temp->offset);
+    temp->cursor = cursor;
     menu->items[pos]->submenu = temp;
-}
 
-/* initalize a cursor with depth of 2 pointing to (0,0) */
-void initializeCursor(Cursor *cursor) {
-    cursor->sel[0] = cursor->sel[1] = 0;
-    cursor->depth=0;
+    keypad(cursor->win,TRUE);
 }
 
 /* adds title, calculates size, and adds submenus to the given menu */
-void initializeMenu(Menu *menu, int offset) {
+void initializeMenu(Menu *menu) {
+    WINDOW *cwin;
+    WINDOW *mwin;
+
+    Cursor *cursor = malloc(sizeof(Cursor));
+    cursor->sel=0;
     menu->title = "Main";
     int size = sizeof items / sizeof (items[0]);
     menu->length = size;
@@ -41,7 +48,7 @@ void initializeMenu(Menu *menu, int offset) {
     menu->width = 0;
     menu->offset = 3;
     
-    // build menu
+    // main menu menu
     for(int i=0;i<size;i++) {
         Item *cur = malloc(sizeof(Item));
         if (menu->width < strlen(items[i])) {
@@ -51,10 +58,23 @@ void initializeMenu(Menu *menu, int offset) {
         menu->items[i] = cur;
     }
 
+    // submenus
     addSubMenu("Jobs", menu, 0, scripts);
     addSubMenu("Manifests", menu, 1, kinds);
     addSubMenu("tools", menu, 2, tools);
     addSubMenu("Options", menu, 3, options);
     addSubMenu("Context", menu, 4, context);
     addSubMenu("Kubectl", menu, 5, kubectl);
+
+    // windows
+    cwin = derwin(stdscr,menu->length,3,1,0);
+    cursor->win = cwin;
+    cursor->offset = 0;
+
+    mwin = derwin(stdscr,menu->length,menu->width,1,3);
+    menu->win = mwin;
+
+    menu->cursor=cursor;
+
+    keypad(menu->cursor->win,TRUE);
 }

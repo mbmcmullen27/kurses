@@ -5,10 +5,9 @@ void drawMenu(Menu*);
 
 int main(){
 
+    Cursor *cursor = malloc(sizeof(Cursor));
+    Menu *activeMenu = malloc(sizeof(Menu));
     Menu menu;
-    Cursor cursor;
-    WINDOW *cwin;
-    WINDOW *mwin;
     WINDOW *titlebar;
     int ch;
 
@@ -16,59 +15,56 @@ int main(){
     // curs_set(0);
     refresh();
 
-    initializeCursor(&cursor);
-    initializeMenu(&menu,3);
-
-    cwin = derwin(stdscr,menu.length,3,1,0);
-    cursor.win = cwin;
-
-    mwin = derwin(stdscr,menu.length,menu.width,1,3);
-    menu.win = mwin;
+    initializeMenu(&menu);
 
     titlebar = derwin(stdscr,1,COLS,0,0);
 
-    keypad(cursor.win,TRUE);
+    keypad(stdscr,TRUE);
     drawMenu(&menu);
+    int level = 0;
+    activeMenu = &menu;
+    cursor=activeMenu->cursor;
     do {
         curs_set(0);
-        int pos = cursor.sel[0];
-        int level = cursor.depth;
-        move(0,0);
+        int pos[] = { menu.cursor->sel, menu.cursor->sel };
         werase(titlebar);
-        wprintw(titlebar,"sel[0]: %d, sel[1]: %d, level: %d, length: %d",cursor.sel[0],cursor.sel[1],level, menu.length);
+        wprintw(titlebar,"sel: %d, activeLength: %d, coffset: %d",cursor->sel, activeMenu->length,cursor->offset);
         wrefresh(titlebar);
 
-        drawCursor(&cursor);
+        drawCursor(cursor);
 
-        ch = wgetch(cursor.win);
+        Menu *next;
+        ch = wgetch(cursor->win);
         switch(ch) {
             case KEY_DOWN:
-                if (level==1){
-                    Item *item = menu.items[pos];
-                    if (cursor.sel[1] < item->submenu->length-1)
-                        cursor.sel[1]++;
-                } else {
-                    if (cursor.sel[0] < menu.length-1)
-                        cursor.sel[0]++;
-                }
+                if (cursor->sel < activeMenu->length-1)
+                    cursor->sel++;
                 break;
             case KEY_UP:
-                if (cursor.sel[level] > 0) cursor.sel[level]--;
+                if (cursor->sel > 0) 
+                    cursor->sel--;
                 break;
             case KEY_LEFT:
-                if (level > 0){
-                    cursor.depth--;
-                    werase(menu.items[pos]->submenu->win);
-                    wrefresh(menu.items[pos]->submenu->win);
-                } 
+                if(level>0){
+                    werase(menu.items[pos[0]]->submenu->win);
+                    wrefresh(menu.items[pos[0]]->submenu->win);
+                    werase(cursor->win);
+                    wrefresh(cursor->win);
+                    level--;
+                    activeMenu=&menu;
+                    cursor=activeMenu->cursor;
+                }
                 break;
             case KEY_RIGHT:
-                if (level < 1) cursor.depth++;
-                if ( pos+1 > menu.items[pos]->submenu->length )
-                    cursor.sel[cursor.depth]=menu.items[pos]->submenu->length - 1;
-                else
-                    cursor.sel[cursor.depth]=pos;
-                drawMenu(menu.items[pos]->submenu);
+                // if (menu->items[pos]->submenu) break;
+                if(level<1){
+                    level++;
+                
+                    next = menu.items[pos[level]]->submenu;
+                    drawMenu(next);
+                    activeMenu=next;
+                    cursor=activeMenu->cursor;
+                }
                 break;
             default:
                 break;
@@ -83,7 +79,8 @@ int main(){
 //wgetch does an implicit refresh so we don't need one in this function
 void drawCursor(Cursor *cursor){
     werase(cursor->win);
-    mvwaddstr(cursor->win,cursor->sel[0],0, "->");
+    mvwaddstr(cursor->win,cursor->sel,0, "->");
+    wrefresh(cursor->win);
 }
 
 void drawMenu(Menu *menu){
