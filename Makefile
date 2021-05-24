@@ -1,4 +1,4 @@
-all: kurses test
+all: kurses tests
 kurses: menu.o main.o
 	clang menu.o main.o -o kurses -lncurses
 menu.o: menu.c menu.h

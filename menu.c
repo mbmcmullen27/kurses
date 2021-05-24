@@ -3,6 +3,7 @@
 void addSubMenu(char *name, Menu *menu, int pos, char **items) {
 
     Menu *temp = malloc(sizeof(Menu));
+    temp->parent=menu;
     Cursor *cursor;
     cursor = malloc(sizeof(Cursor));
     cursor->sel=0;
@@ -28,10 +29,10 @@ void addSubMenu(char *name, Menu *menu, int pos, char **items) {
 
     //size must be at least the same as the main menu size
     //otherwise the window is too small to draw the connecting line
-    if(size>6){
+    if(size>menu->length){
         cursor->win = derwin(stdscr,size,3,1,cursor->offset);
     } else {
-        cursor->win = derwin(stdscr,6,3,1,cursor->offset);
+        cursor->win = derwin(stdscr,menu->length,3,1,cursor->offset);
     }
     temp->offset = cursor->offset+3;
     temp->win = derwin(stdscr,size,temp->width,1,temp->offset);
@@ -67,11 +68,14 @@ void initializeMenu(Menu *menu) {
 
     // submenus
     addSubMenu("Jobs", menu, 0, scripts);
-    addSubMenu("Manifests", menu, 1, kinds);
+    addSubMenu("Manifests", menu, 1, secondary); // ***
     addSubMenu("tools", menu, 2, tools);
     addSubMenu("Options", menu, 3, options);
     addSubMenu("Context", menu, 4, context);
     addSubMenu("Kubectl", menu, 5, kubectl);
+
+    addSubMenu("By Path",menu->items[1]->submenu,0,paths);
+    addSubMenu("By Kind",menu->items[1]->submenu,1,kinds);
 
     // windows
     cwin = derwin(stdscr,menu->length,3,1,0);
