@@ -24,8 +24,15 @@ void addSubMenu(char *name, Menu *menu, int pos, char **items) {
     }
 
     temp->length = size;
-    cursor->offset = menu->offset+menu->width+3;
-    cursor->win = derwin(stdscr,size,3,1,cursor->offset);
+    cursor->offset = menu->offset+menu->width+1;
+
+    //size must be at least the same as the main menu size
+    //otherwise the window is too small to draw the connecting line
+    if(size>6){
+        cursor->win = derwin(stdscr,size,3,1,cursor->offset);
+    } else {
+        cursor->win = derwin(stdscr,6,3,1,cursor->offset);
+    }
     temp->offset = cursor->offset+3;
     temp->win = derwin(stdscr,size,temp->width,1,temp->offset);
     temp->cursor = cursor;

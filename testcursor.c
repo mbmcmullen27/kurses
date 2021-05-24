@@ -2,6 +2,7 @@
 
 void drawCursor(Cursor*);
 void drawMenu(Menu*);
+void drawLines(Menu*,Menu*);
 
 int main(){
 
@@ -32,6 +33,7 @@ int main(){
         wrefresh(titlebar);
 
         drawCursor(cursor);
+        if (level > 0) drawLines(&menu,activeMenu);
 
         Menu *next;
         ch = wgetch(cursor->win);
@@ -46,8 +48,8 @@ int main(){
                 break;
             case KEY_LEFT:
                 if(level>0){
-                    werase(menu.items[pos[0]]->submenu->win);
-                    wrefresh(menu.items[pos[0]]->submenu->win);
+                    werase(menu.items[menu.cursor->sel]->submenu->win);
+                    wrefresh(menu.items[menu.cursor->sel]->submenu->win);
                     werase(cursor->win);
                     wrefresh(cursor->win);
                     level--;
@@ -79,8 +81,34 @@ int main(){
 //wgetch does an implicit refresh so we don't need one in this function
 void drawCursor(Cursor *cursor){
     werase(cursor->win);
-    mvwaddstr(cursor->win,cursor->sel,0, "->");
-    wrefresh(cursor->win);
+    mvwaddstr(cursor->win,cursor->sel,1, ">");
+}
+
+void drawLines(Menu *left, Menu *right){
+    int pos1 = left->cursor->sel;
+    int pos2 = right->cursor->sel;
+
+    WINDOW *r=right->cursor->win;
+    // werase(r);
+    if(pos1<pos2) {
+        wmove(r,pos1,0);
+        waddch(r,A_ALTCHARSET | ACS_URCORNER);
+        wmove(r,pos1+1,0);
+        wvline(r,0,pos2-pos1-1);
+        wmove(r,pos2,0);
+        waddch(r,A_ALTCHARSET | ACS_LLCORNER);
+    }else if(pos2<pos1){
+        wmove(r,pos2,0);
+        waddch(r,A_ALTCHARSET | ACS_ULCORNER);
+        wmove(r,pos2+1,0);
+        wvline(r,0,pos1-pos2);
+        wmove(r,pos1,0);
+        waddch(r,A_ALTCHARSET | ACS_LRCORNER);
+    }else{
+        wmove(r,pos2,0);
+        whline(r,0,1);
+    }
+
 }
 
 void drawMenu(Menu *menu){
