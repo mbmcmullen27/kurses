@@ -33,6 +33,7 @@ struct Menu {
     Item **items;
     WINDOW *win;
     Cursor *cursor;
+    Menu *parent;
 };
 
 static char *items[6] = {
@@ -51,6 +52,21 @@ static char *scripts[7] = {
     "Destroy",
     "Devops/util",
     "Python/scratch",
+    NULL
+};
+
+static char *secondary[3] = {
+    "By Path",
+    "By Kind",
+    NULL
+};
+
+static char *paths[6] = {
+    "/manifests/online/pods",
+    "/manifests/security/pods",
+    "/manifests/stolen/pods",
+    "/manifests/legacy/pods",
+    "/secrets/all",
     NULL
 };
 

@@ -20,9 +20,8 @@ int main(){
 
     titlebar = derwin(stdscr,1,COLS,0,0);
 
-    keypad(stdscr,TRUE);
+    // keypad(stdscr,TRUE);
     drawMenu(&menu);
-    int level = 0;
     activeMenu = &menu;
     cursor=activeMenu->cursor;
     do {
@@ -33,40 +32,37 @@ int main(){
         wrefresh(titlebar);
 
         drawCursor(cursor);
-        if (level > 0) drawLines(&menu,activeMenu);
+        if (activeMenu->title!=menu.title) drawLines(activeMenu->parent,activeMenu);
 
         Menu *next;
+        int selection = cursor->sel;
         ch = wgetch(cursor->win);
         switch(ch) {
             case KEY_DOWN:
-                if (cursor->sel < activeMenu->length-1)
+                if (selection < activeMenu->length-1)
                     cursor->sel++;
                 break;
             case KEY_UP:
-                if (cursor->sel > 0) 
+                if (selection > 0) 
                     cursor->sel--;
                 break;
             case KEY_LEFT:
-                if(level>0){
-                    werase(menu.items[menu.cursor->sel]->submenu->win);
-                    wrefresh(menu.items[menu.cursor->sel]->submenu->win);
+                if(activeMenu->title!=menu.title){
+                    Menu *parent = activeMenu->parent;
+                    werase(parent->items[parent->cursor->sel]->submenu->win);
+                    wrefresh(parent->items[parent->cursor->sel]->submenu->win);
                     werase(cursor->win);
                     wrefresh(cursor->win);
-                    level--;
-                    activeMenu=&menu;
+                    activeMenu=parent;
                     cursor=activeMenu->cursor;
                 }
                 break;
             case KEY_RIGHT:
-                // if (menu->items[pos]->submenu) break;
-                if(level<1){
-                    level++;
-                
-                    next = menu.items[cursor->sel]->submenu;
-                    drawMenu(next);
-                    activeMenu=next;
-                    cursor=activeMenu->cursor;
-                }
+                if (!activeMenu->items[selection]->submenu) break;
+                next = activeMenu->items[selection]->submenu;
+                drawMenu(next);
+                activeMenu=next;
+                cursor=activeMenu->cursor;
                 break;
             default:
                 break;
@@ -85,27 +81,28 @@ void drawCursor(Cursor *cursor){
 }
 
 void drawLines(Menu *left, Menu *right){
-    int pos1 = left->cursor->sel;
-    int pos2 = right->cursor->sel;
+    int lpos = left->cursor->sel;
+    int rpos = right->cursor->sel;
 
+    WINDOW *l=left->cursor->win;
     WINDOW *r=right->cursor->win;
-    // werase(r);
-    if(pos1<pos2) {
-        wmove(r,pos1,0);
+    
+    if(lpos<rpos) { // turns down
+        wmove(r,lpos,0);
         waddch(r,A_ALTCHARSET | ACS_URCORNER);
-        wmove(r,pos1+1,0);
-        wvline(r,0,pos2-pos1-1);
-        wmove(r,pos2,0);
+        wmove(r,lpos+1,0);
+        wvline(r,0,rpos-lpos-1);
+        wmove(r,rpos,0);
         waddch(r,A_ALTCHARSET | ACS_LLCORNER);
-    }else if(pos2<pos1){
-        wmove(r,pos2,0);
+    }else if(rpos<lpos){ // turns up
+        wmove(r,rpos,0);
         waddch(r,A_ALTCHARSET | ACS_ULCORNER);
-        wmove(r,pos2+1,0);
-        wvline(r,0,pos1-pos2);
-        wmove(r,pos1,0);
+        wmove(r,rpos+1,0);
+        wvline(r,0,lpos-rpos);
+        wmove(r,lpos,0);
         waddch(r,A_ALTCHARSET | ACS_LRCORNER);
     }else{
-        wmove(r,pos2,0);
+        wmove(r,rpos,0);
         whline(r,0,1);
     }
 
