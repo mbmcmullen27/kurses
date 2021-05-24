@@ -11,26 +11,28 @@ typedef struct Cursor Cursor;
 
 void addSubMenu(char*,Menu*,int,char**);
 void initializeMenu(Menu*);
-void initializeCursor(Cursor*);
 
 struct Cursor {
-    int sel[2];
-    int depth;
-    char* selection;
-    WINDOW **cwin;
+    int sel;
+    int offset;
+    WINDOW *win;
 };
 
 struct Item {
     char *name;
     void (*action)(int);
     Menu *submenu;
+    WINDOW *win;
 };
 
 struct Menu {
     char *title;
     int length;
+    int width;
+    int offset;
     Item **items;
     WINDOW *win;
+    Cursor *cursor;
 };
 
 static char *items[6] = {
