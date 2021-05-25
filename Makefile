@@ -6,7 +6,7 @@ src/menu.o: src/menu.c src/menu.h
 src/main.o: src/main.c src/menu.h
 	clang -c src/main.c -o src/main.o
 tests: content cursor
-content: test/test-contents.o src/menu.o
+content: test/contents.o src/menu.o
 	clang test/contents.o src/menu.o -o test/content.test -lncurses
 test/contents.o: test/test-contents.c src/menu.h
 	clang -c test/test-contents.c -o test/contents.o
@@ -15,4 +15,4 @@ cursor: test/cursor.o src/menu.o
 test/cursor.o: test/test-cursor.c src/menu.h
 	clang -c test/test-cursor.c -o test/cursor.o
 clean:
-	rm *.o kurses test/*.o test/*.test
+	rm kurses a.out src/*.o test/*.o test/*.test test/*.out
