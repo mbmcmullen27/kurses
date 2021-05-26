@@ -33,7 +33,7 @@ int main(){
     // addSubMenu("Context", &menu, 4, context);
     // addSubMenu("Kubectl", &menu, 5, kubectl);
 
-    initializeMenu(&menu);
+    defaultMenu(&menu);
 
     //print cursor
     printf("Menu Cursor:\n");

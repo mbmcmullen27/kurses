@@ -10,7 +10,10 @@ typedef struct Item Item;
 typedef struct Cursor Cursor;
 
 void addSubMenu(char*,Menu*,int,char**);
-void initializeMenu(Menu*);
+void initializeMenu(Menu*,char**);
+void defaultMenu(Menu*);
+void drawMenu(Menu*);
+
 
 struct Cursor {
     int sel;
@@ -36,13 +39,14 @@ struct Menu {
     Menu *parent;
 };
 
-static char *items[6] = {
+static char *items[7] = {
         "Jobs",
         "Manifests",
         "Tools",
         "Options",
         "Context",
-        "Kubectl"
+        "Kubectl",
+        NULL
     };
 
 static char *scripts[7] = {

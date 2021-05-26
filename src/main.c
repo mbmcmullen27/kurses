@@ -1,7 +1,6 @@
 #include "menu.h"
 
 void drawCursor(Cursor*);
-void drawMenu(Menu*);
 void drawLines(Menu*,Menu*);
 
 int main(){
@@ -16,7 +15,7 @@ int main(){
     // curs_set(0);
     refresh();
 
-    initializeMenu(&menu);
+    defaultMenu(&menu);
 
     titlebar = derwin(stdscr,1,COLS,0,0);
 
@@ -106,16 +105,4 @@ void drawLines(Menu *left, Menu *right){
         whline(r,0,1);
     }
 
-}
-
-void drawMenu(Menu *menu){
-    werase(menu->win);
-    for (int i=0;i<menu->length;i++) {
-        mvwaddstr(
-            menu->win,
-            i,0,
-            menu->items[i]->name
-        );
-    }
-    wrefresh(menu->win);
 }

@@ -1,25 +1,25 @@
 #include "menu.h"
 
-void addSubMenu(char *name, Menu *menu, int pos, char **items) {
+void addSubMenu(char *name, Menu *menu, int pos, char **list) {
 
-    Menu *temp = malloc(sizeof(Menu));
-    temp->parent=menu;
-    Cursor *cursor;
-    cursor = malloc(sizeof(Cursor));
-    cursor->sel=0;
     WINDOW *win;
+    Menu *temp = malloc(sizeof(Menu));
+    Cursor *cursor = malloc(sizeof(Cursor));
+    temp->parent=menu;
+    cursor->sel=0;
     temp->width = 0;
+    
     int size = 0;
-    while(items[size]) size++;
+    while(list[size]) size++;
 
     temp->items = malloc(sizeof(Item) * size);
 
     for(int i=0;i<size;i++) {
         Item *cur = malloc(sizeof(Item));
-        if (temp->width < strlen(items[i])) {
-            temp->width = strlen(items[i]);
+        if (temp->width < strlen(list[i])) {
+            temp->width = strlen(list[i]);
         }
-        cur->name = items[i];
+        cur->name = list[i];
         cur->submenu = NULL;
         temp->items[i] = cur;
     }
@@ -43,39 +43,30 @@ void addSubMenu(char *name, Menu *menu, int pos, char **items) {
 }
 
 /* adds title, calculates size, and adds submenus to the given menu */
-void initializeMenu(Menu *menu) {
+void initializeMenu(Menu *menu, char** list) {
     WINDOW *cwin;
     WINDOW *mwin;
 
     Cursor *cursor = malloc(sizeof(Cursor));
     cursor->sel=0;
     menu->title = "Main";
-    int size = sizeof items / sizeof (items[0]);
+    int size = 0;               // sizeof list / sizeof (list[0]);
+    while(list[size]) size++;   // only arrays defined with [] syntax can use ^^ for length
+
     menu->length = size;
     menu->items = malloc(sizeof(Item) * size); 
     menu->width = 0;
     menu->offset = 3;
     
-    // main menu menu
+    // main menu 
     for(int i=0;i<size;i++) {
         Item *cur = malloc(sizeof(Item));
-        if (menu->width < strlen(items[i])) {
-            menu->width = strlen(items[i]);
+        if (menu->width < strlen(list[i])) {
+            menu->width = strlen(list[i]);
         }
-        cur->name = items[i];
+        cur->name = list[i];
         menu->items[i] = cur;
     }
-
-    // submenus
-    addSubMenu("Jobs", menu, 0, scripts);
-    addSubMenu("Manifests", menu, 1, secondary); // ***
-    addSubMenu("tools", menu, 2, tools);
-    addSubMenu("Options", menu, 3, options);
-    addSubMenu("Context", menu, 4, context);
-    addSubMenu("Kubectl", menu, 5, kubectl);
-
-    addSubMenu("By Path",menu->items[1]->submenu,0,paths);
-    addSubMenu("By Kind",menu->items[1]->submenu,1,kinds);
 
     // windows
     cwin = derwin(stdscr,menu->length,3,1,0);
@@ -88,4 +79,33 @@ void initializeMenu(Menu *menu) {
     menu->cursor=cursor;
 
     keypad(menu->cursor->win,TRUE);
+}
+
+void defaultMenu(Menu *menu){
+
+
+    initializeMenu(menu,items);
+    // submenus
+    addSubMenu("Jobs", menu, 0, scripts);
+    addSubMenu("Manifests", menu, 1, secondary); // ***
+    addSubMenu("tools", menu, 2, tools);
+    addSubMenu("Options", menu, 3, options);
+    addSubMenu("Context", menu, 4, context);
+    addSubMenu("Kubectl", menu, 5, kubectl);
+
+    addSubMenu("By Path",menu->items[1]->submenu,0,paths);
+    addSubMenu("By Kind",menu->items[1]->submenu,1,kinds);
+
+}
+
+void drawMenu(Menu *menu){
+    werase(menu->win);
+    for (int i=0;i<menu->length;i++) {
+        mvwaddstr(
+            menu->win,
+            i,0,
+            menu->items[i]->name
+        );
+    }
+    wrefresh(menu->win);
 }

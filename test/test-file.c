@@ -1,29 +1,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
+#include "../src/menu.h"
 
-char** listdir(const char *path) {
+int main() {
 
     struct dirent *entry;
     DIR *dp;
-    char **files = malloc(sizeof(char*)*20);
-    int i=0;
+    char *files[5];
 
-    dp = opendir(path);
+    int i=0;
+    Menu menu;
+    menu.title = "Main";
+
+    dp = opendir("/home/fishbot/git/mern-stack");
     if (dp == NULL) 
     {
         perror("opendir");
-        return NULL;
+        return 1;
     }
+    // rewinddir(dp);
 
-    int size=0;
     while((entry = readdir(dp))){
-
         printf("%s ->",entry->d_name);
-
         switch(entry->d_type){
             case (DT_REG):
                 printf(" FILE\n");
+                files[i]=entry->d_name;
+                i++;
                 break;
             case (DT_DIR):
                 printf(" DIRECTORY\n");
@@ -31,24 +35,23 @@ char** listdir(const char *path) {
             default:
                 break;
         }
-        printf("%c",entry->d_type);
-        files[i]=entry->d_name;
-        i++;
     }
+    files[i]=NULL;
 
     closedir(dp);
-    return files;
-}
 
-int main(int argc, char **argv) {
-    int counter = 1;
+    initializeMenu(&menu,files);
+    // initscr();
+    // refresh();
+    // drawMenu(&menu);
+    // wrefresh(menu.win);
+    // getch();
+    // endwin();
 
-    if (argc == 1)
-	    listdir("/mnt/c/Users/mbmcm/fishbot/kubelet");
-
-    while (++counter <= argc) {
-        printf("\nListing %s...\n", argv[counter-1]);
-        listdir(argv[counter-1]);
+    // int len = menu.items[0]->submenu->length;
+    printf("\n>>>> Submenu Items\n");
+    for (i=0;i<3;i++){
+        printf("\t[%d] - %s\n",i,menu.items[i]->name);
     }
 
     return 0;
