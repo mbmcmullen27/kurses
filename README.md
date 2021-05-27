@@ -54,3 +54,15 @@ int main(){
 - testmenu.c results in 3 menus with the same entries (I'm not making a new pointer successfully somewhere where I think I am...)
 
 > submenu size can't be calculated with sizeof because it was defined with ** syntax, you need to count the entries in a loop in [menu.c](./menu.c)
+
+#### 5/26
+- saw some strange overwrites happening when trying to build a submenu from a list of filenames in [test-file.c](./test/test-menu.c)
+- fixed by changed how we malloc when initializing the Menu
+
+from:
+    
+    menu->items = malloc(sizeof(Item) * size); 
+
+to:
+    
+    menu->items = malloc(sizeof(*menu->items) * size); 

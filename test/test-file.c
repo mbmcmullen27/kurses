@@ -22,11 +22,13 @@ int main() {
     // rewinddir(dp);
 
     while((entry = readdir(dp))){
+        if (!strcmp(entry->d_name,".") || !strcmp(entry->d_name,"..")) 
+            continue;
         printf("%s ->",entry->d_name);
         switch(entry->d_type){
             case (DT_REG):
                 printf(" FILE\n");
-                files[i]=entry->d_name;
+                files[i] = entry->d_name;
                 i++;
                 break;
             case (DT_DIR):
@@ -38,20 +40,29 @@ int main() {
     }
     files[i]=NULL;
 
+    for (i=0;i<5;i++){
+        printf("\t[%d] - %s\n",i,files[i]);
+    }
+
     closedir(dp);
 
     initializeMenu(&menu,files);
-    // initscr();
-    // refresh();
-    // drawMenu(&menu);
-    // wrefresh(menu.win);
-    // getch();
-    // endwin();
+
+    initscr();
+    drawMenu(&menu);
+    wrefresh(menu.win);
+    refresh();
+    getch();
+    endwin();
 
     // int len = menu.items[0]->submenu->length;
     printf("\n>>>> Submenu Items\n");
-    for (i=0;i<3;i++){
+    for (i=0;i<menu.length;i++){
         printf("\t[%d] - %s\n",i,menu.items[i]->name);
+    }
+    puts("");
+    for (i=0;i<5;i++){
+        printf("\t[%d] - %s\n",i,files[i]);
     }
 
     return 0;

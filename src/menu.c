@@ -1,7 +1,7 @@
 #include "menu.h"
 
 void addSubMenu(char *name, Menu *menu, int pos, char **list) {
-
+    WINDOW *cwin;
     WINDOW *win;
     Menu *temp = malloc(sizeof(Menu));
     Cursor *cursor = malloc(sizeof(Cursor));
@@ -12,12 +12,13 @@ void addSubMenu(char *name, Menu *menu, int pos, char **list) {
     int size = 0;
     while(list[size]) size++;
 
-    temp->items = malloc(sizeof(Item) * size);
+    temp->items = malloc(sizeof(*temp->items) * size);
 
     for(int i=0;i<size;i++) {
-        Item *cur = malloc(sizeof(Item));
-        if (temp->width < strlen(list[i])) {
-            temp->width = strlen(list[i]);
+        int len = strlen(list[i]);
+        Item *cur = malloc(sizeof(Item) + sizeof(char*)*len);
+        if (temp->width < len) {
+            temp->width = len;
         }
         cur->name = list[i];
         cur->submenu = NULL;
@@ -30,10 +31,12 @@ void addSubMenu(char *name, Menu *menu, int pos, char **list) {
     //size must be at least the same as the main menu size
     //otherwise the window is too small to draw the connecting line
     if(size>menu->length){
-        cursor->win = derwin(stdscr,size,3,1,cursor->offset);
+        cwin = derwin(stdscr,size,3,1,cursor->offset);
     } else {
-        cursor->win = derwin(stdscr,menu->length,3,1,cursor->offset);
+        cwin = derwin(stdscr,menu->length,3,1,cursor->offset);
     }
+    
+    cursor->win = cwin;
     temp->offset = cursor->offset+3;
     temp->win = derwin(stdscr,size,temp->width,1,temp->offset);
     temp->cursor = cursor;
@@ -54,15 +57,16 @@ void initializeMenu(Menu *menu, char** list) {
     while(list[size]) size++;   // only arrays defined with [] syntax can use ^^ for length
 
     menu->length = size;
-    menu->items = malloc(sizeof(Item) * size); 
+    menu->items = malloc(sizeof(*menu->items) * size);
     menu->width = 0;
     menu->offset = 3;
     
     // main menu 
     for(int i=0;i<size;i++) {
-        Item *cur = malloc(sizeof(Item));
-        if (menu->width < strlen(list[i])) {
-            menu->width = strlen(list[i]);
+        int len = strlen(list[i]);
+        Item *cur = malloc(sizeof(Item) + sizeof(char*)*len);
+        if (menu->width < len) {
+            menu->width = len;
         }
         cur->name = list[i];
         menu->items[i] = cur;
