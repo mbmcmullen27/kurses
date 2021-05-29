@@ -15,10 +15,10 @@ int main(){
     // curs_set(0);
     refresh();
 
-    defaultMenu(&menu);
+    testMenu(&menu);
+    // defaultMenu(&menu);
 
     titlebar = derwin(stdscr,1,COLS,0,0);
-
     // keypad(stdscr,TRUE);
     drawMenu(&menu);
     activeMenu = &menu;

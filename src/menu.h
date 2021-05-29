@@ -4,6 +4,7 @@
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 
 typedef struct Menu Menu;
 typedef struct Item Item;
@@ -13,6 +14,7 @@ void addSubMenu(char*,Menu*,int,char**);
 void initializeMenu(Menu*,char**);
 void defaultMenu(Menu*);
 void drawMenu(Menu*);
+void testMenu(Menu*);
 
 
 struct Cursor {

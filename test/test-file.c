@@ -25,10 +25,11 @@ int main() {
         if (!strcmp(entry->d_name,".") || !strcmp(entry->d_name,"..")) 
             continue;
         printf("%s ->",entry->d_name);
+        files[i]=malloc(sizeof(char*));
         switch(entry->d_type){
             case (DT_REG):
                 printf(" FILE\n");
-                files[i] = entry->d_name;
+                strcpy(files[i], entry->d_name);
                 i++;
                 break;
             case (DT_DIR):
@@ -49,9 +50,9 @@ int main() {
     initializeMenu(&menu,files);
 
     initscr();
+    refresh();
     drawMenu(&menu);
     wrefresh(menu.win);
-    refresh();
     getch();
     endwin();
 
