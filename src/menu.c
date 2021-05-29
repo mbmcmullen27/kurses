@@ -113,3 +113,54 @@ void drawMenu(Menu *menu){
     }
     wrefresh(menu->win);
 }
+
+void testMenu(Menu *menu){
+    struct dirent *entry;
+    DIR *dp;
+    char *files[10];
+    char *dirs[10];
+
+    
+    menu->title = "Main";
+    dp = opendir("/home/fishbot/git/mern-stack");
+    if (dp == NULL) 
+    {
+        perror("opendir");
+        return;
+    }
+    // rewinddir(dp);
+    int i=0;
+    int j=0;
+    while((entry = readdir(dp))){
+        char* name = entry->d_name;
+        if (!strcmp(entry->d_name,".") || !strcmp(entry->d_name,"..")) 
+            continue;
+        // printf("%s ->",entry->d_name);
+        switch(entry->d_type){
+            case (DT_REG):
+                files[i]=calloc(sizeof(char*),strlen(name));
+                // printf(" FILE\n");
+                strcpy(files[i], entry->d_name);
+                i++;
+                break;
+            case (DT_DIR):
+                dirs[j]=(char*)calloc(sizeof(char*),strlen(name));
+                strcpy(dirs[i], entry->d_name);
+                j++;
+                // printf(" DIRECTORY\n");
+                break;
+            default:
+                break;
+        }
+    }
+    files[i]=NULL;
+    dirs[j]=NULL;
+
+    // for (i=0;i<5;i++){
+    //     printf("\t[%d] - %s\n",i,files[i]);
+    // }
+
+    closedir(dp);
+
+    initializeMenu(menu,dirs);
+}
